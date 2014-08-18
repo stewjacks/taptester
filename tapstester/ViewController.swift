@@ -7,9 +7,48 @@
 //
 
 import UIKit
+import MessageUI
 
-class ViewController: UIViewController {
-                            
+struct serializablePoint {
+    var point: CGPoint
+    var startTimestamp: NSTimeInterval
+    var deviceWidth: Int
+    var timeSinceFirstTouch: NSTimeInterval
+    init(startTime: NSTimeInterval, touch: UITouch) {
+        startTimestamp = startTime
+        deviceWidth = Int(UIApplication.sharedApplication().keyWindow.frame.width)
+        timeSinceFirstTouch = touch.timestamp - startTime
+        point = touch.locationInView(touch.view)
+    }
+    
+    
+    func serialDescription() -> String {
+        return "\(startTimestamp)\t\(deviceWidth)\t\(point.x)\t\(point.y)\t\(timeSinceFirstTouch)"
+    }
+}
+
+struct serializableTouch {
+    var points = [serializablePoint]()
+    var timeStamp : NSTimeInterval
+    
+    init(firstTouch: UITouch) {
+        timeStamp = firstTouch.timestamp
+        points.append(serializablePoint(startTime: timeStamp, touch: firstTouch))
+    }
+    
+    mutating func addPoint(touch: UITouch) {
+        points.append(serializablePoint(startTime: self.timeStamp, touch: touch))
+    }
+    
+    func count() -> Int {
+        return self.points.count
+    }
+}
+
+class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
+
+    var allTouches = [serializableTouch]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.multipleTouchEnabled = true
@@ -28,7 +67,7 @@ class ViewController: UIViewController {
     
     let threshold:Double = 0.3 // this is in seconds and can possibly be a user setting later
     
-    var activeTouches: [Int: [VelocityObject]] = [:]
+    var activeTouches: [Int : serializableTouch] = [:]
     
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
         
@@ -38,7 +77,8 @@ class ViewController: UIViewController {
             super.touchesBegan(touches, withEvent: event)
             if let touch = touch as? UITouch {
                 NSLog("touchesBegan touch: %@", touch.description)
-                activeTouches[touch.hash] = [VelocityObject(point: touch.locationInView(self.view), time: event.timestamp)]
+//                activeTouches[touch.hash] = [VelocityObject(point: touch.locationInView(self.view), time: event.timestamp)]
+                activeTouches[touch.hash] = serializableTouch(firstTouch: touch)
             }
         }
     }
@@ -49,9 +89,9 @@ class ViewController: UIViewController {
         for touch in touches {
             if let touch = touch as? UITouch {
                 NSLog("touchesMoved touch: %@", touch.description)
-                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
-                velocityArray.append(VelocityObject(point: touch.locationInView(self.view), time: event.timestamp))
-                activeTouches[touch.hash] = velocityArray
+//                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
+//                velocityArray.append(VelocityObject(point: touch.locationInView(self.view), time: event.timestamp))
+                activeTouches[touch.hash]?.addPoint(touch)
             }
         }
     }
@@ -62,20 +102,27 @@ class ViewController: UIViewController {
         for touch in touches {
             if let touch = touch as? UITouch {
                 NSLog("touchesEnded touch: %@", touch.description)
-                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
-                NSLog("VelocityArray count %i", velocityArray.count)
+//                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
+                activeTouches[touch.hash]?.addPoint(touch)
+//                NSLog("VelocityArray count %i", velocityArray.count)
                 //                if velocityArray.count <= 4 {
                 self.handleTap(touch as UITouch)
                 
-                if !velocityArray.isEmpty && velocityArray.count > 4 {
-                    checkMotion(velocityArray)
-                }
+//                if !velocityArray.isEmpty && velocityArray.count > 4 {
+//                    checkMotion(velocityArray)
+//                }
                 println("activeTouches before delete \(activeTouches.count)")
+                let toSerialize = activeTouches[touch.hash]
+                allTouches.append(toSerialize!)
+//                dumpTouchesToFile(toSerialize!)
+                
                 activeTouches.removeValueForKey(touch.hash)
 //                activeTouches[touch] = nil
                 println("activeTouches after delete \(activeTouches.count)")
             }
         }
+        
+        
     }
     
     func checkMotion(velocityArray: [VelocityObject]) -> Bool {
@@ -128,7 +175,136 @@ class ViewController: UIViewController {
         NSLog("Called handleTapGesture C ")
     }
 
+    @IBAction func sendLogsAction(sender: UIButton) {
+        var outString = ""
+        for touch in allTouches {
+            for point in touch.points {
+                outString += point.serialDescription() + "\r"
+                
+            }
+        }
+        
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.setSubject("ios touch logs ✌️😎👆📱")
+        mailComposer.setToRecipients(["colin@whirlscape.com"])
+        mailComposer.setMessageBody(outString, isHTML: false)
+        mailComposer.mailComposeDelegate = self
+        self.presentViewController(mailComposer, animated: true, completion: nil)
+        
+    }
+    
+    func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        self.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+//    
+//    - (IBAction)debugSendLogsAction:(UIButton *)sender {
+//    
+//    MFMailComposeViewController *mailComposer = [[MFMailComposeViewController alloc] init];
+//    [mailComposer setSubject:@"DataMobile Log Data"];
+//    [mailComposer setToRecipients:@[@"colin.rothfels@gmail.com"]];
+//    
+//    NSString* logDirectoryPath = [self logDirectoryPath];
+//    NSArray *logFilePaths = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:logDirectoryPath error:nil];;
+//    [logFilePaths enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//    NSString *filename = (NSString*)obj;
+//    NSString *path = [logDirectoryPath stringByAppendingPathComponent:filename];
+//    NSData *logData = [NSData dataWithContentsOfFile:path];
+//    [mailComposer addAttachmentData:logData mimeType:@"text/plain" fileName:filename];
+//    DDLogInfo(@"attached file %@, size: %@", filename, [NSByteCountFormatter stringFromByteCount:logData.length countStyle:NSByteCountFormatterCountStyleFile]);
+//    }];
+//    
+//    mailComposer.mailComposeDelegate = self;
+//    [self presentViewController:mailComposer animated:YES completion:NULL];
+//    }
+//    
+//    -(NSString*)logDirectoryPath {
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+//    NSString *baseDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+//    NSString *logsDirectory = [baseDir stringByAppendingPathComponent:@"Logs"];
+//    return logsDirectory;
+//    }
+//    
+//    
+//    -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+//    DDLogInfo(@"mail composer finished with result: %u, error: %@", result, error.localizedDescription);
+//    [self dismissViewControllerAnimated:YES completion:NULL];
+//    }
 
-
+    func dumpTouchesToFile(touches: serializableTouch) {
+        var outString = ""
+        for point in touches.points {
+            outString += point.serialDescription() + "\r"
+        }
+        
+        let documentsDirectory = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).last! as NSURL
+        let filename = "\(NSDateFormatter.localizedStringFromDate(NSDate.date(), dateStyle: .ShortStyle, timeStyle: .LongStyle))touches.log"
+        
+        let path = documentsDirectory.path.stringByAppendingPathComponent(filename)
+        println("dumping to path \(path)")
+        outString.writeToFile(path, atomically: true, encoding: 3, error: nil)
+        
+//        NSFileManager.defaultManager().createfil
+        
+        
+    }
 }
+
+
+//- (NSURL *)applicationDocumentsDirectory {
+//    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory
+//        inDomains:NSUserDomainMask] lastObject];
+//}
+//You can save like this:
+//
+//NSString *path = [[self applicationDocumentsDirectory].path
+//stringByAppendingPathComponent:@"fileName.txt"];
+//[sampleText writeToFile:path atomically:YES
+//encoding:NSUTF8StringEncoding error:nil];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
