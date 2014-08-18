@@ -115,10 +115,10 @@ class ViewController: UIViewController {
     
     func handleTap(tap: UITouch) {
         var pt = tap.locationInView(self.view)
-        NSLog("Called handleTapGesture A x %f y %f", pt.x, pt.y)
+        NSLog("Called handleTapGesture A x %@ y %@", pt.x.description, pt.y.description)
         
         var bounds = self.view.bounds
-        NSLog("Called handleTapGesture B origin: %f", bounds.origin.x)
+        NSLog("Called handleTapGesture B origin: %@", bounds.origin.x.description)
         
         var normalized : Double = (Double(pt.x)  - Double(bounds.origin.x)) / Double(bounds.size.width)
         NSLog("Called handleTapGesture C ")
