@@ -12,6 +12,7 @@ class ViewController: UIViewController {
                             
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.multipleTouchEnabled = true
         // Do any additional setup after loading the view, typically from a nib.
     }
 
@@ -34,6 +35,7 @@ class ViewController: UIViewController {
         NSLog("touchesBegan")
         
         for touch in touches {
+            super.touchesBegan(touches, withEvent: event)
             if let touch = touch as? UITouch {
                 NSLog("touchesBegan touch: %@", touch.description)
                 activeTouches[touch.hash] = [VelocityObject(point: touch.locationInView(self.view), time: event.timestamp)]
@@ -42,7 +44,8 @@ class ViewController: UIViewController {
     }
     
     override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
-        NSLog("touchesMoved")
+        super.touchesMoved(touches, withEvent: event)
+        NSLog("touchesMoved %i", touches.count)
         for touch in touches {
             if let touch = touch as? UITouch {
                 NSLog("touchesMoved touch: %@", touch.description)
@@ -55,6 +58,7 @@ class ViewController: UIViewController {
     
     override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!) {
         NSLog("touchesEnded")
+        super.touchesEnded(touches, withEvent: event)
         for touch in touches {
             if let touch = touch as? UITouch {
                 NSLog("touchesEnded touch: %@", touch.description)
