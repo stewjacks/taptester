@@ -37,6 +37,7 @@ class ViewController: UIViewController {
         for touch in touches {
             super.touchesBegan(touches, withEvent: event)
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesBegan touch: %@", touch.description)
                 activeTouches[touch.hash] = [VelocityObject(point: touch.locationInView(self.view), time: event.timestamp)]
             }
@@ -48,6 +49,7 @@ class ViewController: UIViewController {
         NSLog("touchesMoved %i", touches.count)
         for touch in touches {
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesMoved touch: %@", touch.description)
                 var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
                 velocityArray.append(VelocityObject(point: touch.locationInView(self.view), time: event.timestamp))
@@ -61,6 +63,7 @@ class ViewController: UIViewController {
         super.touchesEnded(touches, withEvent: event)
         for touch in touches {
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesEnded touch: %@", touch.description)
                 var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
                 NSLog("VelocityArray count %i", velocityArray.count)
@@ -124,10 +127,26 @@ class ViewController: UIViewController {
         var bounds = self.view.bounds
         NSLog("Called handleTapGesture B origin: %@", bounds.origin.x.description)
         
-        var normalized : Double = (Double(pt.x)  - Double(bounds.origin.x)) / Double(bounds.size.width)
+        var normalized : Double = (Double(pt.x) - Double(bounds.origin.x)) / Double(bounds.size.width)
         NSLog("Called handleTapGesture C ")
     }
-
+    
+    func addDecayingCircleView(firstTouch: UITouch) {
+        var circleView = UIView(frame: CGRectMake(firstTouch.locationInView(self.view).x - firstTouch.majorRadius, firstTouch.locationInView(self.view).y - firstTouch.majorRadius, firstTouch.majorRadius*2, firstTouch.majorRadius*2))
+        circleView.layer.cornerRadius = firstTouch.majorRadius
+        circleView.backgroundColor = UIColor.blueColor()
+        circleView.alpha = 0.5
+        self.view.addSubview(circleView)
+        circleView.bringSubviewToFront(circleView)
+        UIView.animateWithDuration(0.5, animations: {
+            circleView.alpha = 0
+            
+            }, completion: {
+                (value: Bool) in
+                circleView.removeFromSuperview()
+        })
+        NSLog("touch radius: %@ tolerance: %@", firstTouch.majorRadius.description, firstTouch.majorRadiusTolerance)
+    }
 
 
 }
