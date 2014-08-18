@@ -23,7 +23,8 @@ struct serializablePoint {
     
     
     func serialDescription() -> String {
-        return "\(startTimestamp)\t\(deviceWidth)\t\(point.x)\t\(point.y)\t\(timeSinceFirstTouch)"
+        let startTimeString = String(format:"%0.7f", startTimestamp)
+        return "\(startTimeString)\t\(deviceWidth)\t\(point.x)\t\(point.y)\t\(timeSinceFirstTouch)"
     }
 }
 
@@ -177,6 +178,23 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         var normalized : Double = (Double(pt.x) - Double(bounds.origin.x)) / Double(bounds.size.width)
         NSLog("Called handleTapGesture C ")
     }
+    
+    func addDecayingCircleView(firstTouch: UITouch) {
+        var circleView = UIView(frame: CGRectMake(firstTouch.locationInView(self.view).x - firstTouch.majorRadius, firstTouch.locationInView(self.view).y - firstTouch.majorRadius, firstTouch.majorRadius*2, firstTouch.majorRadius*2))
+        circleView.layer.cornerRadius = firstTouch.majorRadius
+        circleView.backgroundColor = UIColor.blueColor()
+        circleView.alpha = 0.5
+        self.view.addSubview(circleView)
+        circleView.bringSubviewToFront(circleView)
+        UIView.animateWithDuration(0.5, animations: {
+            circleView.alpha = 0
+            
+            }, completion: {
+                (value: Bool) in
+                circleView.removeFromSuperview()
+        })
+        NSLog("touch radius: %@ tolerance: %@", firstTouch.majorRadius.description, firstTouch.majorRadiusTolerance)
+    }
 
     @IBAction func sendLogsAction(sender: UIButton) {
         var outString = ""
@@ -189,8 +207,16 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         
         let mailComposer = MFMailComposeViewController()
         mailComposer.setSubject("ios touch logs ✌️😎👆📱")
-        mailComposer.setToRecipients(["colin@whirlscape.com"])
-        mailComposer.setMessageBody(outString, isHTML: false)
+        mailComposer.setToRecipients(["colin@whirlscape.com", "will@whirlscape.com"])
+//        mailComposer.setMessageBody(outString, isHTML: false)
+//       let's attach our string as a file. it's cleaner.
+        
+        let outData = outString.dataUsingEncoding(3, allowLossyConversion: false)
+        let filename = "\(NSDateFormatter.localizedStringFromDate(NSDate.date(), dateStyle: .ShortStyle, timeStyle: .LongStyle))touches.log"
+        mailComposer.addAttachmentData(outData, mimeType: "text/plain", fileName: filename)
+
+//        
+        
         mailComposer.mailComposeDelegate = self
         self.presentViewController(mailComposer, animated: true, completion: nil)
         
