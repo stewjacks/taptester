@@ -196,6 +196,8 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         NSLog("touch radius: %@ tolerance: %@", firstTouch.majorRadius.description, firstTouch.majorRadiusTolerance)
     }
 
+    
+    //MARK: handling the send action and logging
     @IBAction func sendLogsAction(sender: UIButton) {
         var outString = ""
         for touch in allTouches {
@@ -226,75 +228,8 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
-//    
-//    - (IBAction)debugSendLogsAction:(UIButton *)sender {
-//    
-//    MFMailComposeViewController *mailComposer = [[MFMailComposeViewController alloc] init];
-//    [mailComposer setSubject:@"DataMobile Log Data"];
-//    [mailComposer setToRecipients:@[@"colin.rothfels@gmail.com"]];
-//    
-//    NSString* logDirectoryPath = [self logDirectoryPath];
-//    NSArray *logFilePaths = [[NSFileManager defaultManager] subpathsOfDirectoryAtPath:logDirectoryPath error:nil];;
-//    [logFilePaths enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//    NSString *filename = (NSString*)obj;
-//    NSString *path = [logDirectoryPath stringByAppendingPathComponent:filename];
-//    NSData *logData = [NSData dataWithContentsOfFile:path];
-//    [mailComposer addAttachmentData:logData mimeType:@"text/plain" fileName:filename];
-//    DDLogInfo(@"attached file %@, size: %@", filename, [NSByteCountFormatter stringFromByteCount:logData.length countStyle:NSByteCountFormatterCountStyleFile]);
-//    }];
-//    
-//    mailComposer.mailComposeDelegate = self;
-//    [self presentViewController:mailComposer animated:YES completion:NULL];
-//    }
-//    
-//    -(NSString*)logDirectoryPath {
-//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-//    NSString *baseDir = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-//    NSString *logsDirectory = [baseDir stringByAppendingPathComponent:@"Logs"];
-//    return logsDirectory;
-//    }
-//    
-//    
-//    -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
-//    DDLogInfo(@"mail composer finished with result: %u, error: %@", result, error.localizedDescription);
-//    [self dismissViewControllerAnimated:YES completion:NULL];
-//    }
 
-    func dumpTouchesToFile(touches: serializableTouch) {
-        var outString = ""
-        for point in touches.points {
-            outString += point.serialDescription() + "\r"
-        }
-        
-        let documentsDirectory = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).last! as NSURL
-        let filename = "\(NSDateFormatter.localizedStringFromDate(NSDate.date(), dateStyle: .ShortStyle, timeStyle: .LongStyle))touches.log"
-        
-        let path = documentsDirectory.path.stringByAppendingPathComponent(filename)
-        println("dumping to path \(path)")
-        outString.writeToFile(path, atomically: true, encoding: 3, error: nil)
-        
-//        NSFileManager.defaultManager().createfil
-        
-        
-    }
 }
-
-
-//- (NSURL *)applicationDocumentsDirectory {
-//    return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory
-//        inDomains:NSUserDomainMask] lastObject];
-//}
-//You can save like this:
-//
-//NSString *path = [[self applicationDocumentsDirectory].path
-//stringByAppendingPathComponent:@"fileName.txt"];
-//[sampleText writeToFile:path atomically:YES
-//encoding:NSUTF8StringEncoding error:nil];
-
-
-
-
-
 
 
 
