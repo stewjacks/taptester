@@ -76,6 +76,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         for touch in touches {
             super.touchesBegan(touches, withEvent: event)
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesBegan touch: %@", touch.description)
 //                activeTouches[touch.hash] = [VelocityObject(point: touch.locationInView(self.view), time: event.timestamp)]
                 activeTouches[touch.hash] = serializableTouch(firstTouch: touch)
@@ -88,6 +89,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         NSLog("touchesMoved %i", touches.count)
         for touch in touches {
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesMoved touch: %@", touch.description)
 //                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
 //                velocityArray.append(VelocityObject(point: touch.locationInView(self.view), time: event.timestamp))
@@ -101,6 +103,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         super.touchesEnded(touches, withEvent: event)
         for touch in touches {
             if let touch = touch as? UITouch {
+                addDecayingCircleView(touch)
                 NSLog("touchesEnded touch: %@", touch.description)
 //                var velocityArray: [VelocityObject] = activeTouches[touch.hash]!
                 activeTouches[touch.hash]?.addPoint(touch)
@@ -171,7 +174,7 @@ class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         var bounds = self.view.bounds
         NSLog("Called handleTapGesture B origin: %@", bounds.origin.x.description)
         
-        var normalized : Double = (Double(pt.x)  - Double(bounds.origin.x)) / Double(bounds.size.width)
+        var normalized : Double = (Double(pt.x) - Double(bounds.origin.x)) / Double(bounds.size.width)
         NSLog("Called handleTapGesture C ")
     }
 
