@@ -9,28 +9,28 @@
 import UIKit
 
 enum KeyboardTouchEventType : Printable {
-    case tap(CGPoint)
-    case swipeLeft
-    case swipeRight
-    case noEvent
+    case Tap(CGPoint)
+    case SwipeLeft
+    case SwipeRight
+    case NoEvent
     
     var description : String {
         get {
             switch self {
-            case .tap(let touch):
+            case .Tap(let touch):
                 return "tap \(touch)"
-            case .swipeLeft:
+            case .SwipeLeft:
                 return "swipeLeft"
-            case .swipeRight:
+            case .SwipeRight:
                 return "swipeRight"
-            case .noEvent:
+            case .NoEvent:
                 return "noEvent"
             }
         }
     }
 }
 
-struct touchPoint {
+struct TouchPoint {
     var point: CGPoint
     var time: Double
     
@@ -40,11 +40,13 @@ struct touchPoint {
     }
 }
 
+
 class ViewController: UIViewController {
+        var activeTouches = [Int: [TouchPoint]]()
                             
-    @IBAction func tapAction(sender: UITapGestureRecognizer) {
-        NSLog("tapAction location: %@, %@", sender.locationInView(self.view).x.description, sender.locationInView(self.view).x.description)
-    }
+//    @IBAction func tapAction(sender: UITapGestureRecognizer) {
+//        NSLog("tapAction location: %@, %@", sender.locationInView(self.view).x.description, sender.locationInView(self.view).x.description)
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,22 +57,21 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
    
-    func handleTapGesture(point: CGPoint) {
+    //MARK: handling recognized events
+    func handleTapEvent(point: CGPoint) {
         NSLog("Do the tap thing at point %@, %@", point.x.description, point.y.description)
     }
     
-    func handleSwipeLeftGesture() {
+    func handleSwipeLeftEvent() {
         NSLog("Do the swipe left thing <--------------")
     }
     
-    func handleSwipeRightGesture() {
+    func handleSwipeRightEvent() {
         NSLog("Do the swipe left thing -------------->")
     }
     
-    var activeTouches: [Int: [touchPoint]] = [:]
-    
+    //MARK: overriding UIKit touch methods
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
-        
         NSLog("touchesBegan")
         
         for touch in touches {
@@ -78,7 +79,7 @@ class ViewController: UIViewController {
             if let touch = touch as? UITouch {
                 
                 NSLog("touchesBegan touch: %@", touch.description)
-                activeTouches[touch.hash] = [touchPoint(touch: touch)]
+                activeTouches[touch.hash] = [TouchPoint(touch: touch)]
             }
         }
     }
@@ -90,9 +91,9 @@ class ViewController: UIViewController {
             if let touch = touch as? UITouch {
                 
                 NSLog("touchesMoved touch: %@", touch.description)
-                var touchPoints: [touchPoint] = activeTouches[touch.hash]!
+                var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
                 println("delta time: \(touch.timestamp - touchPoints[touchPoints.count-1].time)")
-                touchPoints.append(touchPoint(touch: touch))
+                touchPoints.append(TouchPoint(touch: touch))
                 activeTouches[touch.hash] = touchPoints
             }
         }
@@ -104,7 +105,7 @@ class ViewController: UIViewController {
         for touch in touches {
             if let touch = touch as? UITouch {
                 NSLog("touchesEnded touch: %@", touch.description)
-                var touchPoints: [touchPoint] = activeTouches[touch.hash]!
+                var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
                 NSLog("touchPoints count %i", touchPoints.count)
 
                 handleKeyboardTouchEvent(eventForTouchWithPoints(touchPoints))
@@ -124,29 +125,28 @@ class ViewController: UIViewController {
         
     }
     
+//MARK: extracting events from touches
+    
     func handleKeyboardTouchEvent(keyboardTouchEventType: KeyboardTouchEventType) {
         switch keyboardTouchEventType {
-        case .tap(let point):
-            handleTapGesture(point)
-            break
-        case .swipeLeft:
-            handleSwipeLeftGesture()
-            break
-        case .swipeRight:
-            handleSwipeRightGesture()
-            break
-        case .noEvent:
-            break
+        case .Tap(let point):
+            handleTapEvent(point)
+        case .SwipeLeft:
+            handleSwipeLeftEvent()
+        case .SwipeRight:
+            handleSwipeRightEvent()
+        case .NoEvent:
+            println("received noEvent")
         default:
             break
         }
     }
 
-    func eventForTouchWithPoints(touches: [touchPoint]) -> KeyboardTouchEventType {
+    func eventForTouchWithPoints(touches: [TouchPoint]) -> KeyboardTouchEventType {
 
-        return KeyboardTouchEventType.noEvent
-        
-        
+        return .NoEvent
+    }
+    
 //        switch KeyboardTouchEventType {
 //        case .tap:
 //            break
@@ -186,7 +186,6 @@ class ViewController: UIViewController {
 //        let speed:Double = Double(distance) / duration
 //        
 //        NSLog("Speed: %f Distance %f", speed, Float(distance))
-    }
 
 
 }
