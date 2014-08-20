@@ -155,7 +155,7 @@ class tapstesterTests: XCTestCase {
     
     for testPoints in testDict.values {
         testItems.append(testPoints)
-    }
+        }
     }
     
     override func tearDown() {

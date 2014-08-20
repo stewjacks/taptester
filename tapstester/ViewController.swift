@@ -78,7 +78,7 @@ class ViewController: UIViewController {
             super.touchesBegan(touches, withEvent: event)
             if let touch = touch as? UITouch {
                 
-                NSLog("touchesBegan touch: %@", touch.description)
+//                NSLog("touchesBegan touch: %@", touch.description)
                 activeTouches[touch.hash] = [TouchPoint(touch: touch)]
             }
         }
@@ -90,7 +90,7 @@ class ViewController: UIViewController {
         for touch in touches {
             if let touch = touch as? UITouch {
                 
-                NSLog("touchesMoved touch: %@", touch.description)
+//                NSLog("touchesMoved touch: %@", touch.description)
                 var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
                 println("delta time: \(touch.timestamp - touchPoints[touchPoints.count-1].time)")
                 touchPoints.append(TouchPoint(touch: touch))
@@ -104,15 +104,16 @@ class ViewController: UIViewController {
         super.touchesEnded(touches, withEvent: event)
         for touch in touches {
             if let touch = touch as? UITouch {
-                NSLog("touchesEnded touch: %@", touch.description)
+//                NSLog("touchesEnded touch: %@", touch.description)
                 var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
+                touchPoints.append(TouchPoint(touch: touch))
                 NSLog("touchPoints count %i", touchPoints.count)
 
                 handleKeyboardTouchEvent(eventForTouchWithPoints(touchPoints))
                 
-                println("activeTouches before delete \(activeTouches.count)")
+//                println("activeTouches before delete \(activeTouches.count)")
                 activeTouches.removeValueForKey(touch.hash)
-                println("activeTouches after delete \(activeTouches.count)")
+//                println("activeTouches after delete \(activeTouches.count)")
             }
         }
     }
@@ -198,7 +199,7 @@ class ViewController: UIViewController {
             let deltaX = fabs(last.point.x - first.point.x)
             let deltaY = fabs(last.point.y - first.point.y)
             
-            let duration = last.time
+            let duration = last.time - first.time
             
             let xVelocity = Float(deltaX) / Float(duration)
             let yVelocity = Float(deltaY) / Float(duration)
@@ -219,6 +220,10 @@ class ViewController: UIViewController {
             
             
         }
+//        if touches.last != nil {
+//            return .Tap(touches.last!.point)
+//        }
+        //shouldn't happen
         return .NoEvent
     }
 
