@@ -167,20 +167,21 @@ class tapstesterTests: XCTestCase {
         // This is an example of a functional test case.
         println("dataloaded: \(self.testItems.count)")
         
-        for item in self.testItems {
-            println(item)
-        }
+//        for item in self.testItems {
+//            println(item)
+//        }
         
         XCTAssert(self.testItems.count == 45, "failed to load test items")
     }
 
     func testTapDetection() {
         let vc = ViewController()
-        var results = [KeyboardTouchEventType]()
         for testItem in self.testItems {
-            results.append(vc.eventTypeForTouchEvent(testItem))
+            let eventType = testItem.eventType(debug: true)
+            println(eventType, "\n")
+            
         }
-        println(results)
+//        println(results)
     
 }
 //    func testPerformanceExample() {
