@@ -37,6 +37,7 @@ struct TouchPoint: Printable{
     init(touch: UITouch){
         self.point = touch.locationInView(touch.view)
         self.time = touch.timestamp
+        println("timestamp \(touch.timestamp.description)")
     }
     
     var description: String {
@@ -58,7 +59,7 @@ class TouchEvent {
 
     var first : TouchPoint {
         get {
-            return points.last!
+            return points.first!
         }
     }
     
@@ -134,7 +135,7 @@ class ViewController: UIViewController {
     }
     
     func handleSwipeRightEvent() {
-        NSLog("Do the swipe left thing -------------->")
+        NSLog("Do the swipe right thing -------------->")
     }
     
     //MARK: overriding UIKit touch methods
@@ -224,30 +225,19 @@ class ViewController: UIViewController {
 //    
     
     func checkDiscriminant(
-        first:  Float,
-        second: Float,
-        threshHoldVelocity:     Float = 1.0,
-        threshholdDisplacement: Float = 50) -> Bool {
+        speed:  Float,
+        displacement: Float,
+        threshHoldVelocity: Float = 1000.0, // pixels per second
+        threshholdDisplacement: Float = 50.0) -> Bool {
+        
+            let slope = (-threshHoldVelocity) / threshholdDisplacement
+            println("first xVelocity \(speed), second Float(deltaX) \(displacement) slope \(slope) thresholdV \(threshHoldVelocity) thresholdD \(threshholdDisplacement)")
+            println("check \(slope * displacement + threshHoldVelocity)")
+            if (speed > slope * displacement + threshHoldVelocity) {
+                return true
+            }
+            return false
             
-        let slope = (-threshHoldVelocity) / threshholdDisplacement
-            
-//        let y = Float(point.y)
-//        let x = Float(point.x)
-//        let m: Float = DISCRIMINANT_SLOPE
-//        let b: Float = Float(yIntScale) * DISCRIMINANT_YINT
-        
-
-//        var sensitivity = fmax(SENSITIVITY, 1)
-//        sensitivity = fmin(sensitivity, DISCRIMINANT_EXTRA_MAX_SENSITIVITY)
-        
-//        let mSensitivity = DISCRIMINANT_EXTRA_MAX_SPEED / sensitivity
-//        let bSensitivity: Float = -DISCRIMINANT_EXTRA_MAX_SPEED * (DISCRIMINANT_EXTRA_MAX_SENSITIVITY - mSensitivity) / mSensitivity
-        
-        if (first > slope * second) && (first < slope * second + threshholdDisplacement) {
-            return true
-        }
-        return false
-        
         
     }
     func eventTypeForTouchEvent(event: TouchEvent) -> KeyboardTouchEventType {
@@ -255,22 +245,22 @@ class ViewController: UIViewController {
             let first = event.first
             let last = event.last
             
-            let deltaX = fabs(last.point.x - first.point.x)
-            let deltaY = fabs(last.point.y - first.point.y)
+            let deltaX = last.point.x - first.point.x
+            let deltaY = last.point.y - first.point.y
             
             let duration = last.time - first.time
             
             let xVelocity = Float(deltaX) / Float(duration)
             let yVelocity = Float(deltaY) / Float(duration)
-            
-            if checkDiscriminant(xVelocity, second: Float(deltaX)) {
+            println("first \(event.first.point) last \(event.last.point) deltaX \(deltaX) deltaY \(deltaY) duration \(duration) xVelocity \(xVelocity) yVelocity \(yVelocity)")
+            if checkDiscriminant(abs(xVelocity), displacement: Float(abs(deltaX))) {
                 if deltaX < 0 {
                     return .SwipeLeft
                 }else {
                     return .SwipeRight
                 }
 
-            }else if checkDiscriminant(yVelocity, second: Float(deltaY)) {
+            }else if checkDiscriminant(yVelocity, displacement: Float(deltaY)) {
 //                TODO: we can handle vertical swipes here?
                 return .NoEvent
             }else{
