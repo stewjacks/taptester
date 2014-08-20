@@ -29,6 +29,8 @@
 
 /* Begin PBXFileReference section */
 		6BF6255B19A3F56B00CDFFBF /* testtaps.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = testtaps.plist; sourceTree = "<group>"; };
+		6BF9322F19A3CFF70028B8F2 /* TouchProcessor.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = TouchProcessor.java; path = ../../../../../Downloads/TouchProcessor.java; sourceTree = "<group>"; };
+		6BF9323019A3CFF70028B8F2 /* StrokeAnalyzer.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = StrokeAnalyzer.java; path = ../../../../../Downloads/StrokeAnalyzer.java; sourceTree = "<group>"; };
 		8D70544C19A28C5F008528FA /* tapstester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tapstester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D70545019A28C5F008528FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D70545119A28C5F008528FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -81,6 +83,8 @@
 			children = (
 				8D70545119A28C5F008528FA /* AppDelegate.swift */,
 				8D70545319A28C5F008528FA /* ViewController.swift */,
+				6BF9322F19A3CFF70028B8F2 /* TouchProcessor.java */,
+				6BF9323019A3CFF70028B8F2 /* StrokeAnalyzer.java */,
 				8D70545519A28C5F008528FA /* Main.storyboard */,
 				8D70545819A28C5F008528FA /* Images.xcassets */,
 				8D70544F19A28C5F008528FA /* Supporting Files */,
