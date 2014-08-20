@@ -79,14 +79,104 @@ class TouchEvent {
         identifier = touch.hash
     }
     
-    
     subscript(index: Int) -> TouchPoint {
         return points[index]
     }
     
-    
     func add(touch: UITouch) {
         points.append(TouchPoint(touch: touch))
+    }
+    
+    func eventType(debug: Bool = false) -> KeyboardTouchEventType {
+        if (self.count >= 2) {
+//            let first = self.first
+//            let last = event.last
+            
+            let deltaX = fabs(last.point.x - first.point.x)
+            let deltaY = fabs(last.point.y - first.point.y)
+            let deltaDistance = sqrt(deltaX * deltaX + deltaY * deltaY)
+            
+            let duration = last.time - first.time
+            
+            let xVelocity = Float(deltaX) / Float(duration)
+            let yVelocity = Float(deltaY) / Float(duration)
+            let velocity = Float(deltaDistance) / Float(duration)
+            
+            if debug {
+                print(self)
+//                println("first", first)
+//                println("last", last)
+                println("deltaX \(deltaX)\n deltaY: \(deltaY)")
+                println("delta distance:", deltaDistance)
+                println("duration", duration)
+                println("xVelocity \(xVelocity)\n yVelocity: \(yVelocity)")
+                println("total velocity:", velocity)
+            }
+            
+            if _checkDiscriminant(xVelocity, second: Float(deltaX)) {
+                if deltaX < 0 {
+                    return .SwipeLeft
+                }else {
+                    return .SwipeRight
+                }
+                
+            }else if _checkDiscriminant(yVelocity, second: Float(deltaY)) {
+                //                TODO: we can handle vertical swipes here?
+                return .NoEvent
+            }else{
+                return .Tap(last.point)
+            }
+        }
+        return .NoEvent
+    }
+    
+    //    this is all adapted more or less verbatim from StrokeAnalyzer.java, comments included
+    /* Defines time interval from the last touch event on which we want to measure the speed of swipe. (red line in plots) */
+    //    let VELOCITY_SENSITIVITY_TIME: NSTimeInterval = 0.012;
+    //    let DISCRIMINANT_SLOPE: Float = -1.0/50; //100 pixels, 2.0 velocity
+    //    let DISCRIMINANT_YINT: Float = 1.0
+    
+    //    including this comment:
+    /* Handles very short fast strokes which should actually be considered taps
+    * This data point (100, 7) defines the anchor point of this discriminant line,
+    * which at 0 sensitivity is a vertical discriminant and at 100 sensitivity
+    * this discriminant goes through the origin (see blue line in analysis plots) */
+    //    let DISCRIMINANT_EXTRA_MAX_SPEED: Float = 7.0;
+    //    let DISCRIMINANT_EXTRA_MAX_SENSITIVITY: Float = 100;
+    
+    //   If stroke was equal or longer than this time we consider input to be reliable input.
+    
+    //    let RELIABLE_TIME: NSTimeInterval = 0.3;
+    ////    FIXME: this is an arbitrary value. On android this is set dynamically based on device?
+    //    let SENSITIVITY: Float = 0.012
+    //
+    
+    func _checkDiscriminant(
+        first:  Float,
+        second: Float,
+        threshHoldVelocity:     Float = 1000,
+        threshholdDisplacement: Float = 50) -> Bool {
+            
+            let slope = (-threshHoldVelocity) / threshholdDisplacement
+            
+            //        let y = Float(point.y)
+            //        let x = Float(point.x)
+            //        let m: Float = DISCRIMINANT_SLOPE
+            //        let b: Float = Float(yIntScale) * DISCRIMINANT_YINT
+            
+            
+            //        var sensitivity = fmax(SENSITIVITY, 1)
+            //        sensitivity = fmin(sensitivity, DISCRIMINANT_EXTRA_MAX_SENSITIVITY)
+            
+            //        let mSensitivity = DISCRIMINANT_EXTRA_MAX_SPEED / sensitivity
+            //        let bSensitivity: Float = -DISCRIMINANT_EXTRA_MAX_SPEED * (DISCRIMINANT_EXTRA_MAX_SENSITIVITY - mSensitivity) / mSensitivity
+            
+            if (first > slope * second) && (first < slope * second + threshholdDisplacement) {
+                return true
+            }
+            return false
+            
+            
     }
 }
 
@@ -171,7 +261,7 @@ class ViewController: UIViewController {
                 touchEvent.add(touch)
 //                NSLog("touchPoints count %i", touchPoints.count)
 
-                handleKeyboardTouchEvent(eventTypeForTouchEvent(touchEvent))
+                handleKeyboardTouchEvent(touchEvent.eventType())
                 activeTouches.removeValueForKey(touch.hash)
 
             }
