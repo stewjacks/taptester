@@ -93,18 +93,23 @@ class TouchEvent {
             
             let deltaX = fabs(last.point.x - first.point.x)
             let deltaY = fabs(last.point.y - first.point.y)
-
+            let deltaDistance = sqrt(deltaX * deltaX + deltaY * deltaY)
+            
             let duration = last.time - first.time
             
             let xVelocity = Float(deltaX) / Float(duration)
             let yVelocity = Float(deltaY) / Float(duration)
+            let velocity = Float(deltaDistance) / Float(duration)
             
             if debug {
-                println("first", first)
-                println("last", last)
+                print(self)
+//                println("first", first)
+//                println("last", last)
                 println("deltaX \(deltaX)\n deltaY: \(deltaY)")
+                println("delta distance:", deltaDistance)
                 println("duration", duration)
                 println("xVelocity \(xVelocity)\n yVelocity: \(yVelocity)")
+                println("total velocity:", velocity)
             }
             
             if _checkDiscriminant(xVelocity, second: Float(deltaX)) {
