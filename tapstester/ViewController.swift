@@ -40,9 +40,47 @@ struct TouchPoint {
     }
 }
 
+class TouchEvent {
+    var points : [TouchPoint]
+    let identifier: Int
+    
+    var count : Int{
+        get {
+            return points.count
+        }
+    }
+
+    var first : TouchPoint {
+        get {
+            return points.last!
+        }
+    }
+    
+    var last : TouchPoint {
+        get {
+            return points.last!
+        }
+    }
+    
+    init(touch: UITouch) {
+        points = [TouchPoint(touch: touch)]
+        identifier = touch.hash
+    }
+    
+    
+    subscript(index: Int) -> TouchPoint {
+        return points[index]
+    }
+    
+    
+    func add(touch: UITouch) {
+        points.append(TouchPoint(touch: touch))
+    }
+}
+
 
 class ViewController: UIViewController {
-        var activeTouches = [Int: [TouchPoint]]()
+        var activeTouches = [Int: TouchEvent]()
                             
 //    @IBAction func tapAction(sender: UITapGestureRecognizer) {
 //        NSLog("tapAction location: %@, %@", sender.locationInView(self.view).x.description, sender.locationInView(self.view).x.description)
@@ -72,14 +110,12 @@ class ViewController: UIViewController {
     
     //MARK: overriding UIKit touch methods
     override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
-        NSLog("touchesBegan")
-        
+//        NSLog("touchesBegan")
+        super.touchesBegan(touches, withEvent: event)
         for touch in touches {
-            super.touchesBegan(touches, withEvent: event)
+
             if let touch = touch as? UITouch {
-                
-//                NSLog("touchesBegan touch: %@", touch.description)
-                activeTouches[touch.hash] = [TouchPoint(touch: touch)]
+                activeTouches[touch.hash] = TouchEvent(touch: touch)
             }
         }
     }
@@ -89,12 +125,9 @@ class ViewController: UIViewController {
         NSLog("touchesMoved %i", touches.count)
         for touch in touches {
             if let touch = touch as? UITouch {
-                
-//                NSLog("touchesMoved touch: %@", touch.description)
-                var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
-                println("delta time: \(touch.timestamp - touchPoints[touchPoints.count-1].time)")
-                touchPoints.append(TouchPoint(touch: touch))
-                activeTouches[touch.hash] = touchPoints
+                let touchEvent = activeTouches[touch.hash]!
+//                println("delta time: \(touch.timestamp - touchPoints[touchPoints.count-1].time)")
+                touchEvent.add(touch)
             }
         }
     }
@@ -104,16 +137,13 @@ class ViewController: UIViewController {
         super.touchesEnded(touches, withEvent: event)
         for touch in touches {
             if let touch = touch as? UITouch {
-//                NSLog("touchesEnded touch: %@", touch.description)
-                var touchPoints: [TouchPoint] = activeTouches[touch.hash]!
-                touchPoints.append(TouchPoint(touch: touch))
-                NSLog("touchPoints count %i", touchPoints.count)
+                let touchEvent = activeTouches[touch.hash]!
+                touchEvent.add(touch)
+//                NSLog("touchPoints count %i", touchPoints.count)
 
-                handleKeyboardTouchEvent(eventForTouchWithPoints(touchPoints))
-                
-//                println("activeTouches before delete \(activeTouches.count)")
+                handleKeyboardTouchEvent(eventTypeForTouchEvent(touchEvent))
                 activeTouches.removeValueForKey(touch.hash)
-//                println("activeTouches after delete \(activeTouches.count)")
+
             }
         }
     }
@@ -191,10 +221,10 @@ class ViewController: UIViewController {
         
         
     }
-    func eventForTouchWithPoints(touches: [TouchPoint]) -> KeyboardTouchEventType {
-        if (touches.count >= 2) {
-            let first = touches.first!
-            let last = touches.last!
+    func eventTypeForTouchEvent(event: TouchEvent) -> KeyboardTouchEventType {
+        if (event.count >= 2) {
+            let first = event.first
+            let last = event.last
             
             let deltaX = fabs(last.point.x - first.point.x)
             let deltaY = fabs(last.point.y - first.point.y)
@@ -215,7 +245,7 @@ class ViewController: UIViewController {
 //                TODO: we can handle vertical swipes here?
                 return .NoEvent
             }else{
-                return .Tap(touches.last!.point)
+                return .Tap(event.last.point)
             }
             
             
