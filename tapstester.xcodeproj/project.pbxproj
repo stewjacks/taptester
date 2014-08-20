@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6B65D27C19A3FFC900129D74 /* testtaps.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6BF6255B19A3F56B00CDFFBF /* testtaps.plist */; };
+		6B65D27D19A41CD400129D74 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D70545319A28C5F008528FA /* ViewController.swift */; };
+		6BF6255C19A3F56B00CDFFBF /* testtaps.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6BF6255B19A3F56B00CDFFBF /* testtaps.plist */; };
 		8D70545219A28C5F008528FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D70545119A28C5F008528FA /* AppDelegate.swift */; };
 		8D70545419A28C5F008528FA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D70545319A28C5F008528FA /* ViewController.swift */; };
 		8D70545719A28C5F008528FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8D70545519A28C5F008528FA /* Main.storyboard */; };
@@ -25,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6BF6255B19A3F56B00CDFFBF /* testtaps.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = testtaps.plist; sourceTree = "<group>"; };
 		8D70544C19A28C5F008528FA /* tapstester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tapstester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D70545019A28C5F008528FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D70545119A28C5F008528FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				8D70546419A28C5F008528FA /* tapstesterTests.swift */,
+				6BF6255B19A3F56B00CDFFBF /* testtaps.plist */,
 				8D70546219A28C5F008528FA /* Supporting Files */,
 			);
 			path = tapstesterTests;
@@ -189,6 +194,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B65D27C19A3FFC900129D74 /* testtaps.plist in Resources */,
 				8D70545719A28C5F008528FA /* Main.storyboard in Resources */,
 				8D70545919A28C5F008528FA /* Images.xcassets in Resources */,
 			);
@@ -198,6 +204,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BF6255C19A3F56B00CDFFBF /* testtaps.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +224,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B65D27D19A41CD400129D74 /* ViewController.swift in Sources */,
 				8D70546519A28C5F008528FA /* tapstesterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -326,6 +334,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = tapstester/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -337,6 +346,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				INFOPLIST_FILE = tapstester/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -345,7 +355,6 @@
 		8D70546C19A28C5F008528FA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -357,14 +366,12 @@
 				INFOPLIST_FILE = tapstesterTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tapstester.app/tapstester";
 			};
 			name = Debug;
 		};
 		8D70546D19A28C5F008528FA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -372,7 +379,6 @@
 				INFOPLIST_FILE = tapstesterTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tapstester.app/tapstester";
 			};
 			name = Release;
 		};
@@ -395,6 +401,7 @@
 				8D70546A19A28C5F008528FA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8D70546B19A28C5F008528FA /* Build configuration list for PBXNativeTarget "tapstesterTests" */ = {
 			isa = XCConfigurationList;
@@ -403,6 +410,7 @@
 				8D70546D19A28C5F008528FA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
