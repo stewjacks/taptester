@@ -253,14 +253,14 @@ class ViewController: UIViewController {
             let xVelocity = Float(deltaX) / Float(duration)
             let yVelocity = Float(deltaY) / Float(duration)
             println("first \(event.first.point) last \(event.last.point) deltaX \(deltaX) deltaY \(deltaY) duration \(duration) xVelocity \(xVelocity) yVelocity \(yVelocity)")
-            if checkDiscriminant(abs(xVelocity), displacement: Float(abs(deltaX))) {
+            
+            if checkDiscriminant(fabs(xVelocity), displacement: Float(fabs(deltaX))) && fabs(deltaX) >= fabs(deltaY) { //a swipe on X and x displacement is greater than y displacement
                 if deltaX < 0 {
                     return .SwipeLeft
                 }else {
                     return .SwipeRight
                 }
-
-            }else if checkDiscriminant(yVelocity, displacement: Float(deltaY)) {
+            } else if checkDiscriminant(fabs(yVelocity), displacement: Float(fabs(deltaY))) && fabs(deltaX) < fabs(deltaY) {
 //                TODO: we can handle vertical swipes here?
                 return .NoEvent
             }else{
