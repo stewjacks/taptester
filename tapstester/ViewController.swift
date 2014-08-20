@@ -30,13 +30,19 @@ enum KeyboardTouchEventType : Printable {
     }
 }
 
-struct TouchPoint {
+struct TouchPoint: Printable{
     var point: CGPoint
     var time: NSTimeInterval
     
     init(touch: UITouch){
         self.point = touch.locationInView(touch.view)
         self.time = touch.timestamp
+    }
+    
+    var description: String {
+        get {
+            return "\(point), delta time: \(time)"
+        }
     }
 }
 
@@ -61,6 +67,7 @@ class TouchEvent {
             return points.last!
         }
     }
+    
     init(point: TouchPoint, identifier: Int) {
         self.points = [point]
         self.identifier = identifier
@@ -79,6 +86,24 @@ class TouchEvent {
     
     func add(touch: UITouch) {
         points.append(TouchPoint(touch: touch))
+    }
+}
+
+extension TouchEvent: Printable, DebugPrintable {
+    var description: String {
+        get {
+            var pointDescription = ""
+            for point in self.points {
+                pointDescription += "\(point)\n"
+            }
+            return "Touch event with \(self.count) touchPoints:\n \(pointDescription)"
+        }
+    }
+    
+    var debugDescription: String {
+        get {
+            return ""
+        }
     }
 }
 

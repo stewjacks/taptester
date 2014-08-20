@@ -166,6 +166,11 @@ class tapstesterTests: XCTestCase {
     func testThatOurDataExists() {
         // This is an example of a functional test case.
         println("dataloaded: \(self.testItems.count)")
+        
+        for item in self.testItems {
+            println(item)
+        }
+        
         XCTAssert(self.testItems.count == 45, "failed to load test items")
     }
 
