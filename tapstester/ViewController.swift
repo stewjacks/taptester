@@ -32,7 +32,7 @@ enum KeyboardTouchEventType : Printable {
 
 struct TouchPoint {
     var point: CGPoint
-    var time: Double
+    var time: NSTimeInterval
     
     init(touch: UITouch){
         self.point = touch.locationInView(touch.view)
@@ -141,52 +141,86 @@ class ViewController: UIViewController {
             break
         }
     }
+    
+//    this is all adapted more or less verbatim from StrokeAnalyzer.java, comments included
+/* Defines time interval from the last touch event on which we want to measure the speed of swipe. (red line in plots) */
+//    let VELOCITY_SENSITIVITY_TIME: NSTimeInterval = 0.012;
+//    let DISCRIMINANT_SLOPE: Float = -1.0/50; //100 pixels, 2.0 velocity
+//    let DISCRIMINANT_YINT: Float = 1.0
 
+//    including this comment:
+    /* Handles very short fast strokes which should actually be considered taps
+    * This data point (100, 7) defines the anchor point of this discriminant line,
+    * which at 0 sensitivity is a vertical discriminant and at 100 sensitivity
+    * this discriminant goes through the origin (see blue line in analysis plots) */
+//    let DISCRIMINANT_EXTRA_MAX_SPEED: Float = 7.0;
+//    let DISCRIMINANT_EXTRA_MAX_SENSITIVITY: Float = 100;
+    
+//   If stroke was equal or longer than this time we consider input to be reliable input.
+
+//    let RELIABLE_TIME: NSTimeInterval = 0.3;
+////    FIXME: this is an arbitrary value. On android this is set dynamically based on device?
+//    let SENSITIVITY: Float = 0.012
+//    
+    
+    func checkDiscriminant(
+        first:  Float,
+        second: Float,
+        threshHoldVelocity:     Float = 1.0,
+        threshholdDisplacement: Float = 50) -> Bool {
+            
+        let slope = (-threshHoldVelocity) / threshholdDisplacement
+            
+//        let y = Float(point.y)
+//        let x = Float(point.x)
+//        let m: Float = DISCRIMINANT_SLOPE
+//        let b: Float = Float(yIntScale) * DISCRIMINANT_YINT
+        
+
+//        var sensitivity = fmax(SENSITIVITY, 1)
+//        sensitivity = fmin(sensitivity, DISCRIMINANT_EXTRA_MAX_SENSITIVITY)
+        
+//        let mSensitivity = DISCRIMINANT_EXTRA_MAX_SPEED / sensitivity
+//        let bSensitivity: Float = -DISCRIMINANT_EXTRA_MAX_SPEED * (DISCRIMINANT_EXTRA_MAX_SENSITIVITY - mSensitivity) / mSensitivity
+        
+        if (first > slope * second) && (first < slope * second + threshholdDisplacement) {
+            return true
+        }
+        return false
+        
+        
+    }
     func eventForTouchWithPoints(touches: [TouchPoint]) -> KeyboardTouchEventType {
+        if (touches.count >= 2) {
+            let first = touches.first!
+            let last = touches.last!
+            
+            let deltaX = fabs(last.point.x - first.point.x)
+            let deltaY = fabs(last.point.y - first.point.y)
+            
+            let duration = last.time
+            
+            let xVelocity = Float(deltaX) / Float(duration)
+            let yVelocity = Float(deltaY) / Float(duration)
+            
+            if checkDiscriminant(xVelocity, second: Float(deltaX)) {
+                if deltaX < 0 {
+                    return .SwipeLeft
+                }else {
+                    return .SwipeRight
+                }
 
+            }else if checkDiscriminant(yVelocity, second: Float(deltaY)) {
+//                TODO: we can handle vertical swipes here?
+                return .NoEvent
+            }else{
+                return .Tap(touches.last!.point)
+            }
+            
+            
+        }
         return .NoEvent
     }
-    
-//        switch KeyboardTouchEventType {
-//        case .tap:
-//            break
-//        case .swipeLeft:
-//            break
-//        case .swipeRight:
-//            break
-//        case .noEvent:
-//            break
-//        default:
-//            break
-//        }
-        
-//        var duration: Double = 0
-//        var distance: CGFloat = 0
-//        var previousPoint: CGPoint?
-//        var previousDuration: Double?
-//        //        var swipeDirection:
-//        
-//        NSLog("CheckMotion")
-//        
-//        for p in touchPoints {
-//            if previousPoint == nil {
-//                previousPoint = p.point
-//            } else {
-//                distance += sqrt(pow((p.point.x - previousPoint!.x), 2.0) + pow((p.point.y - previousPoint!.y), 2.0))
-//            }
-//            if previousDuration == nil {
-//                previousDuration = p.time
-//            } else {
-//                duration += p.time - previousDuration!
-//            }
-//            
-//            
-//        }
-//        
-//        let speed:Double = Double(distance) / duration
-//        
-//        NSLog("Speed: %f Distance %f", speed, Float(distance))
-
 
 }
 
