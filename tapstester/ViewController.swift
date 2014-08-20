@@ -61,6 +61,10 @@ class TouchEvent {
             return points.last!
         }
     }
+    init(point: TouchPoint, identifier: Int) {
+        self.points = [point]
+        self.identifier = identifier
+    }
     
     init(touch: UITouch) {
         points = [TouchPoint(touch: touch)]

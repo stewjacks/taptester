@@ -112,16 +112,6 @@ let someTestItems : [[Float]] = [
     [362980.5877316, 320, 301.5, 425.0, 0.0],
     [362980.5877316, 320, 300.0, 427.5, 0.0476017083274201]]
 
-//struct TouchPoint {
-//    var point: CGPoint
-//    var time: Double
-//    
-//    init(touch: UITouch){
-//        self.point = touch.locationInView(touch.view)
-//        self.time = touch.timestamp
-//    }
-//    
-//}
 
 extension TouchPoint {
     init(array: [Float]) {
@@ -130,26 +120,36 @@ extension TouchPoint {
     }
 }
 
+extension TouchEvent {
+    convenience init(pointArray: [Float]) {
+        let point = TouchPoint(array: pointArray)
+        let ident = Int(pointArray[0] * 100) // gotta keep that double percis
+        self.init(point: point, identifier: ident)
+    }
+    
+    func add(pointArray: [Float]) {
+        points.append(TouchPoint(array: pointArray))
+    }
+}
+
 class tapstesterTests: XCTestCase {
-    var testItems = [[TouchPoint]]()
+    var testItems = [TouchEvent]()
 //    var testArray = [[TouchPoint]]()
 //
     override func setUp() {
         super.setUp()
 
        
-        var testDict = Dictionary<Float, [TouchPoint]>()
+        var testDict = Dictionary<Float, TouchEvent>()
         
         for item in someTestItems {
             let touchPoint = TouchPoint(array: item)
             let key = item[0]
-            if testDict[key] == nil {
-                testDict[key] = [touchPoint]
+            let event = testDict[key]
+            if event != nil {
+                event!.add(item)
             }else{
-                var points = testDict[key]!
-                points.append(touchPoint)
-                testDict[key] = points
-//                println(testDict[key]!.count)
+                testDict[key] = TouchEvent(pointArray: item)
             }
         }
     
@@ -173,7 +173,7 @@ class tapstesterTests: XCTestCase {
         let vc = ViewController()
         var results = [KeyboardTouchEventType]()
         for testItem in self.testItems {
-            results.append(vc.eventForTouchWithPoints(testItem))
+            results.append(vc.eventTypeForTouchEvent(testItem))
         }
         println(results)
     
