@@ -110,7 +110,7 @@ class ViewController: UIViewController {
     }
     
     func handleSwipeRightEvent() {
-        NSLog("Do the swipe left thing -------------->")
+        NSLog("Do the swipe right thing -------------->")
     }
     
     //MARK: overriding UIKit touch methods
@@ -200,15 +200,15 @@ class ViewController: UIViewController {
 //    
     
     func checkDiscriminant(
-        first:  Float,
-        second: Float,
-        threshHoldVelocity: Float = 1, // pixels per second
-        threshholdDisplacement: Float = 100) -> Bool {
+        speed:  Float,
+        displacement: Float,
+        threshHoldVelocity: Float = 1000.0, // pixels per second
+        threshholdDisplacement: Float = 50.0) -> Bool {
         
             let slope = (-threshHoldVelocity) / threshholdDisplacement
-            println("first xVelocity \(first), second Float(deltaX) \(second) slope \(slope) thresholdV \(threshHoldVelocity) thresholdD \(threshholdDisplacement)")
-            println("check \(slope * second + threshholdDisplacement)")
-            if (first > slope * second + threshholdDisplacement) {
+            println("first xVelocity \(speed), second Float(deltaX) \(displacement) slope \(slope) thresholdV \(threshHoldVelocity) thresholdD \(threshholdDisplacement)")
+            println("check \(slope * displacement + threshHoldVelocity)")
+            if (speed > slope * displacement + threshHoldVelocity) {
                 return true
             }
             return false
@@ -220,22 +220,22 @@ class ViewController: UIViewController {
             let first = event.first
             let last = event.last
             
-            let deltaX = fabs(last.point.x - first.point.x)
-            let deltaY = fabs(last.point.y - first.point.y)
+            let deltaX = last.point.x - first.point.x
+            let deltaY = last.point.y - first.point.y
             
             let duration = last.time - first.time
             
             let xVelocity = Float(deltaX) / Float(duration)
             let yVelocity = Float(deltaY) / Float(duration)
             println("first \(event.first.point) last \(event.last.point) deltaX \(deltaX) deltaY \(deltaY) duration \(duration) xVelocity \(xVelocity) yVelocity \(yVelocity)")
-            if checkDiscriminant(abs(xVelocity), second: Float(abs(deltaX))) {
+            if checkDiscriminant(abs(xVelocity), displacement: Float(abs(deltaX))) {
                 if deltaX < 0 {
                     return .SwipeLeft
                 }else {
                     return .SwipeRight
                 }
 
-            }else if checkDiscriminant(yVelocity, second: Float(deltaY)) {
+            }else if checkDiscriminant(yVelocity, displacement: Float(deltaY)) {
 //                TODO: we can handle vertical swipes here?
                 return .NoEvent
             }else{
