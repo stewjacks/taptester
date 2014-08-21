@@ -179,6 +179,14 @@ extension TouchEvent: Printable, DebugPrintable {
     }
 }
 
+
+extension TouchEvent: SequenceType {
+    
+    func generate() -> IndexingGenerator<Array<TouchPoint>> {
+        return points.generate()
+    }
+}
+
 //MARK: - ViewController
 
 class ViewController: UIViewController, MFMailComposeViewControllerDelegate {

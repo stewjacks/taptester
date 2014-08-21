@@ -184,6 +184,20 @@ class tapstesterTests: XCTestCase {
 //        println(results)
     
 }
+    
+    
+    func testEventSequence() {
+        println("testing event sequence")
+        for testItem in self.testItems {
+            let targetCount = testItem.count
+            var ourCount = 0
+            for touch in testItem {
+                println(touch)
+                ourCount += 1
+            }
+            XCTAssertEqual(targetCount, ourCount, "sequence returned incomplete record")
+        }
+    }
 //    func testPerformanceExample() {
 //        // This is an example of a performance test case.
 //        self.measureBlock() {
