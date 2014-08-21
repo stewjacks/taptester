@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MessageUI
 
 enum KeyboardTouchEventType : Printable {
     case Tap(CGPoint)
@@ -42,6 +43,17 @@ struct TouchPoint: Printable{
     var description: String {
         get {
             return "\(point), delta time: \(time)"
+        }
+    }
+}
+
+let DEVICE_WIDTH = 320
+
+extension TouchPoint: DebugPrintable {
+// we're using the existing DebugPrintable Protocol to define our 'printable/loggable' point descriptions
+    var debugDescription: String {
+        get {
+            return "\(DEVICE_WIDTH)\t\(point.x)\t\(point.y)\t\(time)"
         }
     }
 }
@@ -85,7 +97,8 @@ class TouchEvent {
     func add(touch: UITouch) {
         points.append(TouchPoint(touch: touch))
     }
-    
+
+    //MARK: event type determination
     func eventType(debug: Bool = false) -> KeyboardTouchEventType {
         if (self.count >= 2) {
 
@@ -155,15 +168,22 @@ extension TouchEvent: Printable, DebugPrintable {
     }
     
     var debugDescription: String {
+//        our touchpoints do not know their identity, so we have to add them here:
         get {
-            return ""
+            var desc = ""
+            for point in self.points {
+                desc += "\(identifier)\t\(point.debugDescription)\t\(eventType())\n"
+            }
+            return desc
         }
     }
 }
 
+//MARK: - ViewController
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, MFMailComposeViewControllerDelegate {
         var activeTouches = [Int: TouchEvent]()
+        var allTouchEvents = [TouchEvent]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -214,6 +234,7 @@ class ViewController: UIViewController {
             if let touch = touch as? UITouch {
                 let touchEvent = activeTouches[touch.hash]!
                 touchEvent.add(touch)
+                allTouchEvents.append(touchEvent)
 
                 handleKeyboardTouchEvent(touchEvent.eventType())
                 activeTouches.removeValueForKey(touch.hash)
@@ -245,6 +266,37 @@ class ViewController: UIViewController {
         default:
             break
         }
+    }
+    
+    //MARK: handling the send action and logging
+    //FIXME: FOR DEBUG PURPOSES WE ARE STORING ALL TOUCHES. IF WE ARE DONE DEBUGGING, REMOVE THE 'allTouchEvents' IVAR AND RELATED CODE.
+    @IBAction func sendLogsAction(sender: UIButton) {
+        var outString = ""
+        for touch in allTouchEvents {
+            outString += touch.debugDescription
+        }
+        
+//        println(outString); return
+        
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.setSubject("ios touch logs ✌️😎👆📱")
+        mailComposer.setToRecipients(["colin@whirlscape.com","will@whirlscape.com"])
+        //        mailComposer.setMessageBody(outString, isHTML: false)
+        //       let's attach our string as a file. it's cleaner.
+        
+        let outData = outString.dataUsingEncoding(3, allowLossyConversion: false)
+        let filename = "\(NSDateFormatter.localizedStringFromDate(NSDate.date(), dateStyle: .ShortStyle, timeStyle: .LongStyle))touches.log"
+        mailComposer.addAttachmentData(outData, mimeType: "text/plain", fileName: filename)
+        
+        //
+        
+        mailComposer.mailComposeDelegate = self
+        self.presentViewController(mailComposer, animated: true, completion: nil)
+        
+    }
+    
+    func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        self.dismissViewControllerAnimated(true, completion: nil);
     }
 }
 
